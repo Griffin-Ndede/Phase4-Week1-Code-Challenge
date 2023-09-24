@@ -14,7 +14,7 @@ class Restaurant(db.Model):
     address = db.Column(db.String(), nullable=False)
     
     # defining many to many relationship btn pizza through restaurantpizza
-    pizzas = relationship('Pizzas', secondary="restaurant_pizza", back_populates= "pizzas")
+    # pizzas = relationship('Pizzas', secondary="restaurant_pizza", back_populates= "pizzas")
     
     # validation for the name column
     @validates("name")
@@ -31,7 +31,7 @@ class Pizzas(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 # defining the many to many relationship btn Restaurant through Restaurantpizza
-    restaurants = relationship("Restaurant", secondary="restaurant_pizza", back_populates= "pizzas")
+    # restaurants = relationship("Restaurant", secondary="restaurant_pizza", back_populates= "pizzas")
 @app.route("/")
 def Home():
     return "This is my restaurant API"
@@ -76,32 +76,32 @@ def restaurant_by_id(id):
     else:
         return "Restaurant not found", 404
     
-# @app.route("/pizzas", methods =["POST", "GET"])
-# def pizzas():
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         ingredients = request.form['ingredients']
+@app.route("/pizzas", methods =["POST", "GET"])
+def pizzas():
+    if request.method == 'POST':
+        name = request.form['name']
+        ingredients = request.form['ingredients']
 
-#         # saving new pizza to the database
-#         new_pizza = Pizzas(name=name, ingredients=ingredients)
-#         db.session.add(new_pizza)
-#         db.session.commit()
-#         return "Pizza details added successfully"
-#     # retrieving a list of pizza that has been added to the database
-#     elif request.method == "GET":
-#         pizza_list = Pizzas.query.all()
-#         pizza_json = [
-#             {
-#                 "id": pizzas.id,
-#                 "name": pizzas.name,
-#                 "ingredients": pizzas.ingredients,
+        # saving new pizza to the database
+        new_pizza = Pizzas(name=name, ingredients=ingredients)
+        db.session.add(new_pizza)
+        db.session.commit()
+        return "Pizza details added successfully"
+    # retrieving a list of pizza that has been added to the database
+    elif request.method == "GET":
+        pizza_list = Pizzas.query.all()
+        pizza_json = [
+            {
+                "id": pizzas.id,
+                "name": pizzas.name,
+                "ingredients": pizzas.ingredients,
 
-#             }
-#             for pizzas in pizza_list
-#         ]
-#         return jsonify(pizza_json)
-#     else:
-#         return "Invalid request method"
+            }
+            for pizzas in pizza_list
+        ]
+        return jsonify(pizza_json)
+    else:
+        return "Invalid request method"
 
 
 if __name__ == "__main__":
