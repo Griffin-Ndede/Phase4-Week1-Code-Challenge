@@ -47,6 +47,20 @@ def restaurants():
         return jsonify(restaurant_json)
     else:
         return "Invalid request method"
+    
+@app.route("/restaurants/<int:id>", methods=['GET'])
+def restaurant_by_id(id):
+    # Retrieve a restaurant by ID
+    restaurant = Restaurant.query.get(id)
+    if restaurant:
+        restaurant_json = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address,
+        }
+        return jsonify(restaurant_json)
+    else:
+        return "Restaurant not found", 404
 
 if __name__ == "__main__":
     with app.app_context():
