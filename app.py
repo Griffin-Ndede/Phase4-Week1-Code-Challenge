@@ -75,7 +75,16 @@ def restaurant_by_id(id):
         return jsonify(restaurant_json)
     else:
         return "Restaurant not found", 404
-    
+
+@app.route("/restaurants/<int:id>", methods=['DELETE'])
+def delete_restaurant(id):
+    # Retrieve a restaurant by ID
+    restaurant = Restaurant.query.get(id)
+    db.session.delete(restaurant)
+    db.session.commit()
+
+    return "Restaurant was successfully deleted from"
+  
 @app.route("/pizzas", methods =["POST", "GET"])
 def pizzas():
     if request.method == 'POST':
