@@ -1,4 +1,4 @@
-from sqlalchemy.orm import validates, relationship
+from sqlalchemy.orm import validates
 from datetime import datetime
 from app import db
 
@@ -10,8 +10,8 @@ class Restaurant(db.Model):
     address = db.Column(db.String(), nullable=False)
     
     # Define many-to-many relationship between Pizza and Restaurant through Restaurant_pizza.
-    restaurant_pizza = db.relationship("restaurant_pizza", back_populates="restaurant")
-
+    restaurant = db.relationship('Restaurant', back_populates='restaurant_pizza')
+    pizza = db.relationship('Pizza', back_populates='restaurants_pizza')
     # Validation for the name column.
     @validates("name")
     def validate_name(self, key, value):
@@ -27,7 +27,7 @@ class Pizza(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Define the many-to-many relationship between Restaurant and Pizza through Restaurant_pizza.
-    restaurants_pizza = db.relationship("Restaurant_pizza", back_populates="pizzas")
+    restaurants_pizza = db.relationship("RestaurantPizza", back_populates="pizza")
 
 
 class RestaurantPizza(db.Model):

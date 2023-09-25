@@ -1,13 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-from models import Restaurant, Pizza
+from app.models import Restaurant, Pizza
+from app import app, db
 
 @app.route("/")
 def home():
@@ -86,7 +81,7 @@ def pizzas():
     else:
         return "Invalid request method"
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     with app.app_context():
+#         db.create_all()
+#     app.run(debug=True)
