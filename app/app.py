@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from app.models import Restaurant, Pizza
 from app import app, db
 
+
 @app.route("/")
 def home():
     return "This is my restaurant API"
@@ -81,7 +82,3 @@ def pizzas():
     else:
         return "Invalid request method"
 
-# if __name__ == "__main__":
-#     with app.app_context():
-#         db.create_all()
-#     app.run(debug=True)

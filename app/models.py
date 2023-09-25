@@ -10,8 +10,10 @@ class Restaurant(db.Model):
     address = db.Column(db.String(), nullable=False)
     
     # Define many-to-many relationship between Pizza and Restaurant through Restaurant_pizza.
-    restaurant = db.relationship('Restaurant', back_populates='restaurant_pizza')
-    pizza = db.relationship('Pizza', back_populates='restaurants_pizza')
+    # restaurant = db.relationship('Restaurant', back_populates='restaurant_pizza')
+    # pizza = db.relationship('Pizza', back_populates='restaurants_pizza')
+    pizzas = db.relationship('Pizza', secondary='restaurant_pizza', back_populates='restaurants')
+
     # Validation for the name column.
     @validates("name")
     def validate_name(self, key, value):
@@ -27,8 +29,8 @@ class Pizza(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Define the many-to-many relationship between Restaurant and Pizza through Restaurant_pizza.
-    restaurants_pizza = db.relationship("RestaurantPizza", back_populates="pizza")
-
+    # restaurants_pizza = db.relationship("RestaurantPizza", back_populates="pizza")
+    restaurants = db.relationship('Restaurant', secondary='restaurant_pizza', back_populates='pizzas')
 
 class RestaurantPizza(db.Model):
     id = db.Column(db.Integer, primary_key=True)
