@@ -1,39 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import validates, relationship
-from datetime import datetime
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+from models import Restaurant, Pizza
 
-class Restaurant(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False, unique=True)
-    address = db.Column(db.String(), nullable=False)
-    
-    # defining many to many relationship btn pizza through restaurantpizza
-    # pizzas = relationship('Pizzas', secondary="restaurant_pizza", back_populates= "pizzas")
-    
-    # validation for the name column
-    @validates("name")
-    def validate_name(self,key,value):
-        if len(value) > 50:
-            raise ValueError("Name must be less than 50 characters")
-        return value
-
-class Pizzas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False, unique=True)
-    ingredients = db.Column(db.String(), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-# defining the many to many relationship btn Restaurant through Restaurantpizza
-    # restaurants = relationship("Restaurant", secondary="restaurant_pizza", back_populates= "pizzas")
 @app.route("/")
-def Home():
+def home():
     return "This is my restaurant API"
 
 @app.route("/restaurants", methods=["POST", "GET"])
@@ -62,59 +39,54 @@ def restaurants():
     else:
         return "Invalid request method"
     
-@app.route("/restaurants/<int:id>", methods=['GET'])
+@app.route("/restaurants/<int:id>", methods=['GET', 'DELETE'])
 def restaurant_by_id(id):
     # Retrieve a restaurant by ID
     restaurant = Restaurant.query.get(id)
-    if restaurant:
+    if not restaurant:
+        return "Restaurant not found", 404
+
+    if request.method =='GET':
         restaurant_json = {
             "id": restaurant.id,
             "name": restaurant.name,
             "address": restaurant.address,
         }
         return jsonify(restaurant_json)
+    elif request.method == "DELETE":
+        db.session.delete(restaurant)
+        db.session.commit()  # You were missing parentheses here.
+        return "Restaurant was successfully deleted"
     else:
-        return "Restaurant not found", 404
+        return "Invalid request method"
 
-@app.route("/restaurants/<int:id>", methods=['DELETE'])
-def delete_restaurant(id):
-    # Retrieve a restaurant by ID
-    restaurant = Restaurant.query.get(id)
-    db.session.delete(restaurant)
-    db.session.commit()
-
-    return "Restaurant was successfully deleted from"
-  
-@app.route("/pizzas", methods =["POST", "GET"])
+@app.route("/pizzas", methods=["POST", "GET"])
 def pizzas():
     if request.method == 'POST':
         name = request.form['name']
         ingredients = request.form['ingredients']
 
-        # saving new pizza to the database
-        new_pizza = Pizzas(name=name, ingredients=ingredients)
+        # Saving new pizza to the database
+        new_pizza = Pizza(name=name, ingredients=ingredients)
         db.session.add(new_pizza)
         db.session.commit()
         return "Pizza details added successfully"
-    # retrieving a list of pizza that has been added to the database
     elif request.method == "GET":
-        pizza_list = Pizzas.query.all()
+        # Retrieving a list of pizzas that have been added to the database
+        pizza_list = Pizza.query.all()
         pizza_json = [
             {
-                "id": pizzas.id,
-                "name": pizzas.name,
-                "ingredients": pizzas.ingredients,
-
+                "id": pizza.id,
+                "name": pizza.name,
+                "ingredients": pizza.ingredients,
             }
-            for pizzas in pizza_list
+            for pizza in pizza_list
         ]
         return jsonify(pizza_json)
     else:
         return "Invalid request method"
 
-
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
