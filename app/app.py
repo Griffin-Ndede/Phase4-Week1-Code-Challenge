@@ -76,7 +76,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:/// restaurant.db"
 
 db.init_app(app)
 
-from models import Restaurant
+from models import Restaurant, Pizza, RestaurantPizza
 
 with app.app_context():
     db.create_all()
