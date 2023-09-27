@@ -14,26 +14,7 @@
 
 
     
-# @app.route("/restaurants/<int:id>", methods=['GET', 'DELETE'])
-# def restaurant_by_id(id):
-#     # Retrieve a restaurant by ID
-#     restaurant = Restaurant.query.get(id)
-#     if not restaurant:
-#         return "Restaurant not found", 404
 
-#     if request.method =='GET':
-#         restaurant_json = {
-#             "id": restaurant.id,
-#             "name": restaurant.name,
-#             "address": restaurant.address,
-#         }
-#         return jsonify(restaurant_json)
-#     elif request.method == "DELETE":
-#         db.session.delete(restaurant)
-#         db.session.commit()  # You were missing parentheses here.
-#         return "Restaurant was successfully deleted"
-#     else:
-#         return "Invalid request method"
 
 # @app.route("/pizzas", methods=["POST", "GET"])
 # def pizzas():
@@ -111,7 +92,28 @@ def restaurants():
         return jsonify(restaurant_json)
     else:
         return "Invalid request method"
+    
+    
+@app.route("/restaurants/<int:id>", methods=['GET', 'DELETE'])
+def restaurant_by_id(id):
+    # Retrieve a restaurant by ID
+    restaurant = Restaurant.query.get(id)
+    if not restaurant:
+        return "Restaurant not found", 404
 
+    if request.method =='GET':
+        restaurant_json = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address,
+        }
+        return jsonify(restaurant_json)
+    elif request.method == "DELETE":
+        db.session.delete(restaurant)
+        db.session.commit()  # You were missing parentheses here.
+        return "Restaurant was successfully deleted"
+    else:
+        return "Invalid request method"
 
 if __name__ == "__main__":
     app.run()
