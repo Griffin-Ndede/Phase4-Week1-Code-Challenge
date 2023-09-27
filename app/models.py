@@ -1,7 +1,8 @@
 from sqlalchemy.orm import validates
-from datetime import datetime
-from app import db
+# from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
 # Define your models in singular form (Restaurant, Pizza, not Restaurants, Pizzas).
 class Restaurant(db.Model):
@@ -50,3 +51,4 @@ class RestaurantPizza(db.Model):
         if value < 1 or value > 30:
             raise ValueError("Price must be between 1 and 30")
         return value
+    
