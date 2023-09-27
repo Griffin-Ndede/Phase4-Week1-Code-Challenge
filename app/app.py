@@ -1,35 +1,10 @@
-# from flask import Flask, request, jsonify
-# from flask_sqlalchemy import SQLAlchemy
-# from flask_migrate import Migrate
-# # from app import db  
-# from models import db, Restaurant, Pizza
 
-# app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
-
-# db = SQLAlchemy(app)
-# migrate = Migrate(app, db)
-
-
-
-
-    
-
-
-
-
-# if __name__ == "__main__":
-#     with app.app_context():
-#         db.create_all()  # Create database tables
-#     app.run(debug=True)
 
 from flask import Flask, request, jsonify
 from models import db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:/// restaurant.db"
-
-# db = SQLAlchemy(app)
 
 db.init_app(app)
 
@@ -76,12 +51,23 @@ def restaurant_by_id(id):
     restaurant = Restaurant.query.get(id)
     if not restaurant:
         return "Restaurant not found", 404
+    # retrieving the pizzas associated with the restaurant
+    pizzas = restaurant.pizzas
 
+    # creating a JSON reponse
     if request.method =='GET':
         restaurant_json = {
             "id": restaurant.id,
             "name": restaurant.name,
             "address": restaurant.address,
+            "pizzas":[
+                {
+                    "id": pizza.id,
+                    "name": pizza.name,
+                    "ingredients": pizza.ingredients,
+                }
+                for pizza in pizzas
+            ]
         }
         return jsonify(restaurant_json)
     elif request.method == "DELETE":
@@ -116,6 +102,45 @@ def pizzas():
         return jsonify(pizza_json)
     else:
         return "Invalid request method"
+    
+@app.route("/restaurant_pizzas", methods=["POST"])
+def restaurantpizzas():
+    # Parse form data
+    price = request.form.get("price")
+    pizza_id = request.form.get("pizza_id")
+    restaurant_id = request.form.get("restaurant_id")
+
+    if not all([price, pizza_id, restaurant_id]):
+        return jsonify({"errors": ["Missing required fields"]}), 400
+
+    price = int(price)
+    pizza_id = int(pizza_id)
+    restaurant_id = int(restaurant_id)
+
+    pizza = Pizza.query.get(pizza_id)
+    restaurant = Restaurant.query.get(restaurant_id)
+
+    if not pizza:
+        return jsonify({"errors": ["Pizza not found"]}), 404
+
+    if not restaurant:
+        return jsonify({"errors": ["Restaurant not found"]}), 404
+
+    restaurant_pizza = RestaurantPizza(
+        price=price, pizza_id=pizza_id, restaurant_id=restaurant_id
+    )
+
+    db.session.add(restaurant_pizza)
+    db.session.commit()
+
+    pizza_data = {
+        "id": pizza.id,
+        "name": pizza.name,
+        "ingredients": pizza.ingredients,
+    }
+
+    return jsonify(pizza_data), 201
+
 
 if __name__ == "__main__":
     app.run()
