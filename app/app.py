@@ -16,31 +16,7 @@
     
 
 
-# @app.route("/pizzas", methods=["POST", "GET"])
-# def pizzas():
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         ingredients = request.form['ingredients']
 
-#         # Saving new pizza to the database
-#         new_pizza = Pizza(name=name, ingredients=ingredients)
-#         db.session.add(new_pizza)
-#         db.session.commit()
-#         return "Pizza details added successfully"
-#     elif request.method == "GET":
-#         # Retrieving a list of pizzas that have been added to the database
-#         pizza_list = Pizza.query.all()
-#         pizza_json = [
-#             {
-#                 "id": pizza.id,
-#                 "name": pizza.name,
-#                 "ingredients": pizza.ingredients,
-#             }
-#             for pizza in pizza_list
-#         ]
-#         return jsonify(pizza_json)
-#     else:
-#         return "Invalid request method"
 
 # if __name__ == "__main__":
 #     with app.app_context():
@@ -93,7 +69,7 @@ def restaurants():
     else:
         return "Invalid request method"
     
-    
+
 @app.route("/restaurants/<int:id>", methods=['GET', 'DELETE'])
 def restaurant_by_id(id):
     # Retrieve a restaurant by ID
@@ -110,8 +86,34 @@ def restaurant_by_id(id):
         return jsonify(restaurant_json)
     elif request.method == "DELETE":
         db.session.delete(restaurant)
-        db.session.commit()  # You were missing parentheses here.
+        db.session.commit()  
         return "Restaurant was successfully deleted"
+    else:
+        return "Invalid request method"
+
+@app.route("/pizzas", methods=["POST", "GET"])
+def pizzas():
+    if request.method == 'POST':
+        name = request.form['name']
+        ingredients = request.form['ingredients']
+
+        # Saving new pizza to the database
+        new_pizza = Pizza(name=name, ingredients=ingredients)
+        db.session.add(new_pizza)
+        db.session.commit()
+        return "Pizza details added successfully"
+    elif request.method == "GET":
+        # Retrieving a list of pizzas that have been added to the database
+        pizza_list = Pizza.query.all()
+        pizza_json = [
+            {
+                "id": pizza.id,
+                "name": pizza.name,
+                "ingredients": pizza.ingredients,
+            }
+            for pizza in pizza_list
+        ]
+        return jsonify(pizza_json)
     else:
         return "Invalid request method"
 
